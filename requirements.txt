@@ -1,3 +1,7 @@
 pandas
 numpy
--e .
+scikit-learn
+seaborn
+matplotlib
+
+#-e .
