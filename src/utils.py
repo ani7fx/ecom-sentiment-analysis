@@ -6,6 +6,9 @@ import numpy as np
 import dill
 from src.exception import CustomException
 import gensim.downloader as api
+from sklearn.metrics import accuracy_score
+
+
 
 wv = api.load("word2vec-google-news-300")
 
@@ -20,7 +23,7 @@ def preprocess_and_vectorize(text,nlp,wv):
     
     if not filtered_tokens:
         return None
-    return wv.get_mean_vector(filtered_tokens)
+    return np.array(wv.get_mean_vector(filtered_tokens))
 
 
 def rename_columns(df):
@@ -47,6 +50,31 @@ def sentiment_mapper(x):
         return 1
     else:
         return 0
+    
+def evaluate_models(X_train, y_train, X_test, y_test, models):
+    try:
+        report = {}
+
+        for i in range(len(list(models))):
+            model = list(models.values())[i]
+            model.fit(X_train, y_train)
+
+            y_train_pred = model.predict(X_train)
+            y_train_pred =[1 if value > 0.5 else 0 for value in y_train_pred]
+
+            y_test_pred = model.predict(X_test)
+            y_test_pred =[1 if value > 0.5 else 0 for value in y_test_pred]
+
+            train_score = accuracy_score(y_train, y_train_pred)
+            test_score = accuracy_score(y_test, y_test_pred)
+
+            report[list(models.keys())[i]] = test_score
+
+        return report
+
+
+    except Exception as e:
+        raise CustomException(e,sys)
 
 
 

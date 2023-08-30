@@ -109,10 +109,10 @@ class DataTransformation:
 
             train_df = remove_null_values(train_df)
             test_df = remove_null_values(test_df)
+            print("Train DF shape : " ,train_df.shape)
 
             logging.info("removed null value rows from train and test data")
 
-            test_df = test_df
 
             logging.info("obtaining the preprocessing object")
 
@@ -122,9 +122,10 @@ class DataTransformation:
 
             input_feature_train_df = train_df[['review_body']]
             target_feature_train_df = train_df[[target_column_name]]
+            print("input_feature_train df shape : ", input_feature_train_df.shape)
+            print("target feature train df shape : ", target_feature_train_df.shape)
 
             print(input_feature_train_df.shape)
-            sys.stdout.flush()
 
 
             input_feature_test_df = test_df[['review_body']]
@@ -132,15 +133,44 @@ class DataTransformation:
 
             logging.info("Applying preprocessing objcet on training and testing dataframe")
 
-            input_feature_train_arr = [preprocess_and_vectorize(text,self.nlp,self.wv) for text in input_feature_train_df['review_body']]
-            input_feature_test_arr = [preprocess_and_vectorize(text,self.nlp,self.wv) for text in input_feature_test_df['review_body']]
+            feature_train_arrays = []
+            indices_to_remove_train = []
+            for i,text in enumerate(input_feature_train_df['review_body']):
+                processed_array = preprocess_and_vectorize(text,self.nlp,self.wv)
+                if processed_array is not None:
+                    feature_train_arrays.append(processed_array)
+                else:
+                    indices_to_remove_train.append(i)
+            input_feature_train_arr = np.vstack(feature_train_arrays)
+
+            feature_test_arrays = []
+            indices_to_remove_test = []
+            for i,text in enumerate(input_feature_test_df['review_body']):
+                processed_array = preprocess_and_vectorize(text, self.nlp, self.wv)
+                if processed_array is not None:
+                    feature_test_arrays.append(processed_array)
+                else:
+                    indices_to_remove_test.append(i)
+            input_feature_test_arr = np.vstack(feature_test_arrays)
+
+            # print(input_feature_train_arr[:2])
+            # print(input_feature_train_arr[22])
+
+            scaler = MinMaxScaler()
+            input_feature_train_arr = scaler.fit_transform(input_feature_train_arr)
+            
+            input_feature_test_arr = scaler.transform(input_feature_test_arr)
 
             target_feature_train_df.loc[:, 'sentiment'] = target_feature_train_df['sentiment'].apply(sentiment_mapper)
             target_feature_test_df.loc[:,'sentiment'] = target_feature_test_df['sentiment'].apply(sentiment_mapper)
 
             target_feature_train_arr = target_feature_train_df.to_numpy()
-            target_feature_test_arr = target_feature_test_df.to_numpy()
+            target_feature_train_arr = np.delete(target_feature_train_arr, indices_to_remove_train, axis=0)
+            target_feature_train_arr = target_feature_train_arr.ravel()
 
+            target_feature_test_arr = target_feature_test_df.to_numpy()
+            target_feature_test_arr = np.delete(target_feature_test_arr, indices_to_remove_test, axis = 0)
+            target_feature_test_arr = target_feature_test_arr.ravel()
 
             logging.info("Saved preprocessing object")
 
@@ -148,6 +178,8 @@ class DataTransformation:
             #     file_path = self.data_transformation_config.preprocessor_obj_file_path,
             #     obj = preprocessing_obj
             # )
+
+            
 
             return(
                 input_feature_train_arr,

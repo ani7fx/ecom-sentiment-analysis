@@ -6,5 +6,7 @@ matplotlib
 spacy
 gensim
 dill
+catboost
+xgboost
 
 #-e .
