@@ -49,6 +49,40 @@ class ModelTrainer:
                 "KNeighbors Classifier" : KNeighborsClassifier()
             }
 
+            # params = {
+            #     "Naive Bayes": {
+            #         "alpha": [0.1, 1.0, 10.0]
+            #     },
+            #     "Gradient Boosting": {
+            #         "n_estimators": [50, 100, 200],
+            #         "learning_rate": [0.01, 0.1, 0.2]
+            #     },
+            #     "Random Forest Classifier": {
+            #         "n_estimators": [50, 100, 200],
+            #         "max_depth": [None, 10, 20],
+            #         "min_samples_split": [2, 5, 10]
+            #     },
+            #     "CatBoost Classifier": {
+            #         "iterations": [50, 100, 200],
+            #         "learning_rate": [0.01, 0.1, 0.2]
+            #     },
+            #     "XGBoost Classifier": {
+            #         "n_estimators": [50, 100, 200],
+            #         "learning_rate": [0.01, 0.1, 0.2]
+            #     },
+            #     "Ridge": {
+            #         "alpha": [0.01, 0.1, 1.0]
+            #     },
+            #     "Ada Boost Regressor": {
+            #         "n_estimators": [50, 100, 200],
+            #         "learning_rate": [0.01, 0.1, 0.2]
+            #     },
+            #     "KNeighbors Classifier": {
+            #         "n_neighbors": [3, 5, 7],
+            #         "weights": ["uniform", "distance"]
+            #     }
+            # }
+
             model_report:dict = evaluate_models(X_train = X_train, y_train = y_train,
                                                X_test = X_test, y_test = y_test, models = models)
             
